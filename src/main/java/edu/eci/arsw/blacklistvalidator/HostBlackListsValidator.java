@@ -6,10 +6,13 @@
 package edu.eci.arsw.blacklistvalidator;
 
 import edu.eci.arsw.spamkeywordsdatasource.HostBlacklistsDataSourceFacade;
+import edu.eci.arsw.threads.BlackListThread;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
 
 /**
  *
@@ -29,28 +32,21 @@ public class HostBlackListsValidator {
      * @param ipaddress suspicious host's IP address.
      * @return  Blacklists numbers where the given host's IP address was found.
      */
-    public List<Integer> checkHost(String ipaddress){
-        
-        LinkedList<Integer> blackListOcurrences=new LinkedList<>();
-        
-        int ocurrencesCount=0;
-        
+    public void checkHost(String ipaddress, int n){
+
         HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
-        
-        int checkedListsCount=0;
-        
-        for (int i=0;i<skds.getRegisteredServersCount() && ocurrencesCount<BLACK_LIST_ALARM_COUNT;i++){
-            checkedListsCount++;
-            
-            if (skds.isInBlackListServer(i, ipaddress)){
-                
-                blackListOcurrences.add(i);
-                
-                ocurrencesCount++;
-            }
+
+        int serverAmount = skds.getRegisteredServersCount();
+
+        int threadRange = serverAmount / n;
+
+        for(int i = 0; i < n; i++){
+            BlackListThread thread = new BlackListThread(i * threadRange, ((i+1) * threadRange) - 1, ipaddress);
+            thread.start();
         }
+
         
-        if (ocurrencesCount>=BLACK_LIST_ALARM_COUNT){
+        /**if (ocurrencesCount>=BLACK_LIST_ALARM_COUNT){
             skds.reportAsNotTrustworthy(ipaddress);
         }
         else{
@@ -59,7 +55,7 @@ public class HostBlackListsValidator {
         
         LOG.log(Level.INFO, "Checked Black Lists:{0} of {1}", new Object[]{checkedListsCount, skds.getRegisteredServersCount()});
         
-        return blackListOcurrences;
+        return blackListOcurrences;**/
     }
     
     
