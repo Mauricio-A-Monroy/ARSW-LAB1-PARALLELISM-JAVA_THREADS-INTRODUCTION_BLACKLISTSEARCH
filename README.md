@@ -21,7 +21,9 @@
 	2. Inicie los tres hilos con 'start()'.
 	3. Ejecute y revise la salida por pantalla. 
 	4. Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
-    		Con el 'start()' los numeros no se van a imprimir en orden debido a que los hilos trabajan en paralelo, en cambio con el 'run()' los números se imprimirán en orden ya que se ejecutan secuencialmente.
+
+
+   	Con el 'start()' los numeros no se van a imprimir en orden debido a que los hilos trabajan en paralelo, en cambio con el 'run()' los números se imprimirán en orden ya que se ejecutan secuencialmente.
 
 **Parte II - Ejercicio Black List Search**
 
