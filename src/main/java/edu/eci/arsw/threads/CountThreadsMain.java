@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package edu.eci.arsw.threads;
-
+import edu.eci.arsw.threads.CountThread;
 /**
  *
  * @author hcadavid
@@ -12,7 +12,22 @@ package edu.eci.arsw.threads;
 public class CountThreadsMain {
     
     public static void main(String a[]){
-        
+        /**
+        Thread countThread1 = new Thread(new CountThread(0,99));
+        Thread countThread2 = new Thread(new CountThread(99,199));
+        Thread countThread3 = new Thread(new CountThread(200,299));**/
+
+        Thread countThread1 = new CountThread(0,99);
+        Thread countThread2 = new CountThread(99,199);
+        Thread countThread3 = new CountThread(200,299);
+
+        countThread1.start();
+        countThread2.start();
+        countThread3.start();
+
+        countThread1.run();
+        countThread2.run();
+        countThread3.run();
     }
     
 }
