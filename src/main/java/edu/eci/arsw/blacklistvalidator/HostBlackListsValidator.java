@@ -8,6 +8,7 @@ package edu.eci.arsw.blacklistvalidator;
 import edu.eci.arsw.spamkeywordsdatasource.HostBlacklistsDataSourceFacade;
 import edu.eci.arsw.threads.BlackListThread;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -32,30 +33,64 @@ public class HostBlackListsValidator {
      * @param ipaddress suspicious host's IP address.
      * @return  Blacklists numbers where the given host's IP address was found.
      */
-    public void checkHost(String ipaddress, int n){
+    public List<Integer> checkHost(String ipaddress, int n){
 
+        // Getting the amount of servers and creating array of threads
         HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
-
         int serverAmount = skds.getRegisteredServersCount();
+        List<BlackListThread> threads = new ArrayList<BlackListThread>();
 
+        // Range of servers that will be assigned to each thread
         int threadRange = serverAmount / n;
 
-        for(int i = 0; i < n; i++){
-            BlackListThread thread = new BlackListThread(i * threadRange, ((i+1) * threadRange) - 1, ipaddress);
-            thread.start();
+        // Assigning the range to each thread and checking if the amount is odd or even
+        if(n % 2 == 0){
+            for(int i = 0; i < n; i++){
+                threads.add(new BlackListThread(i * threadRange, ((i+1) * threadRange) - 1, ipaddress));
+                threads.get(i).start();
+            }
+        }
+        else {
+            for(int i = 0; i < n - 1; i++){
+                threads.add(new BlackListThread(i * threadRange, ((i+1) * threadRange) - 1, ipaddress));
+                threads.get(i).start();
+            }
+            threads.add(new BlackListThread((n-1) * threadRange, serverAmount - 1, ipaddress));
+            threads.get(n-1).start();
         }
 
-        
-        /**if (ocurrencesCount>=BLACK_LIST_ALARM_COUNT){
+        // Waiting for all the other threads until they finish or the ip address is on a black list
+        int ocurrencesCount = 0;
+        int checkedListsCount = 0;
+        for(int i = 0; i < n && ocurrencesCount < BLACK_LIST_ALARM_COUNT; i++){
+            try{
+                BlackListThread thread = threads.get(i);
+
+                thread.join();
+                ocurrencesCount += thread.getOcurrencesCount();
+                checkedListsCount += thread.getCheckedListsCount();
+            }
+            catch(InterruptedException e){
+                 System.out.println("An exception has been caught " + e);
+            }
+        }
+
+        // Adding all the servers where the ip was found
+        ArrayList<Integer> blackListOcurrences = new ArrayList<>();
+        for(int i = 0; i < n; i++){
+            blackListOcurrences.addAll(threads.get(i).getBlackList());
+        }
+
+        // Reporting or not the ip address
+        if (ocurrencesCount >= BLACK_LIST_ALARM_COUNT){
             skds.reportAsNotTrustworthy(ipaddress);
         }
         else{
             skds.reportAsTrustworthy(ipaddress);
-        }                
-        
+        }
+
         LOG.log(Level.INFO, "Checked Black Lists:{0} of {1}", new Object[]{checkedListsCount, skds.getRegisteredServersCount()});
-        
-        return blackListOcurrences;**/
+        return blackListOcurrences;
     }
     
     

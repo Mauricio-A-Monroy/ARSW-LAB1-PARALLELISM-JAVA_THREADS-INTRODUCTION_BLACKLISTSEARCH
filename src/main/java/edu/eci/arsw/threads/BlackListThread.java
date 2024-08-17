@@ -1,5 +1,6 @@
 package edu.eci.arsw.threads;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -7,19 +8,21 @@ import  edu.eci.arsw.spamkeywordsdatasource.*;
 import  edu.eci.arsw.blacklistvalidator.*;
 
 public class BlackListThread extends Thread{
+
     private int lowServer;
     private int highServer;
+    private int checkedListsCount;
 
     private String ipAddress;
 
     private List<Integer> blackListOcurrences;
-    private int ocurrencesCount = 0;
 
     public BlackListThread(int low, int high, String ipAddress){
         this.lowServer = low;
         this.highServer = high;
         this.ipAddress = ipAddress;
-        this.blackListOcurrences = new LinkedList<>();
+        this.blackListOcurrences = new ArrayList<>();
+        this.checkedListsCount = 0;
     }
 
     public int getLowServer() {
@@ -28,6 +31,10 @@ public class BlackListThread extends Thread{
 
     public int getHighServer() {
         return highServer;
+    }
+
+    public int getCheckedListsCount(){
+        return checkedListsCount;
     }
 
     public int getOcurrencesCount(){
@@ -45,19 +52,20 @@ public class BlackListThread extends Thread{
     public void run(){
 
         HostBlacklistsDataSourceFacade skds=HostBlacklistsDataSourceFacade.getInstance();
-
-        for (int i=this.getLowServer();i<this.getHighServer();i++){
-
+        for (int i = this.getLowServer(); i <= this.getHighServer(); i++){
+            this.checkedListsCount++;
             if (skds.isInBlackListServer(i, this.getIpAddress())){
-
                 blackListOcurrences.add(i);
-
             }
         }
 
-        System.out.println("High " + this.getHighServer());
-        System.out.println("Low " + this.getLowServer());
-        System.out.println("Black List " + this.getBlackList());
+        /**
+         System.out.println("Low: " + this.lowServer);
+        System.out.println("High: " + this.highServer);
+        System.out.println("Ocurrences Count: " + this.blackListOcurrences);
+        System.out.println("Checked Lists: " + this.checkedListsCount);
+        System.out.println("Black Lists: " + this.blackListOcurrences);
+         **/
 
     }
 }
