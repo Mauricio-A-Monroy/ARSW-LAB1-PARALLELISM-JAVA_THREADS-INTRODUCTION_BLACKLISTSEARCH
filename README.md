@@ -85,12 +85,25 @@ Con lo anterior, y con los tiempos de ejecución dados, haga una gráfica de tie
 	![](img/ahmdahls.png), donde _S(n)_ es el mejoramiento teórico del desempeño, _P_ la fracción paralelizable del algoritmo, y _n_ el número de hilos, a mayor _n_, mayor debería ser dicha mejora. Por qué el mejor desempeño no se logra con los 500 hilos?, cómo se compara este desempeño cuando se usan 200?.
 
 
-El mejor desempeño siempre se logrará con una mayor cantidad de hilos, ya ley de Amdahls tiene una funcion racional, por lo que posee una asíntota horizontal, así, entre mayor sea el número de hilos, el desempeño se acercará más a el valor de dicha asíntota.
-El desempeño de 500 hilos será mayor que el de 200 hilos.
+	El mejor desempeño siempre se logrará con una mayor cantidad de hilos, ya ley de Amdahls tiene una funcion racional, por lo que posee una asíntota horizontal, así, entre mayor sea el número de 	hilos, el desempeño se acercará más a el valor de dicha asíntota.
+
+
+	El desempeño de 500 hilos será mayor que el de 200 hilos.
 
 3. Cómo se comporta la solución usando tantos hilos de procesamiento como núcleos comparado con el resultado de usar el doble de éste?.
 
+
+	Cuando se tiene el doble de hilos se comporta mejor que cuando se tiene tantos hilos de procesamiento como nucleos.
+
 4. De acuerdo con lo anterior, si para este problema en lugar de 100 hilos en una sola CPU se pudiera usar 1 hilo en cada una de 100 máquinas hipotéticas, la ley de Amdahls se aplicaría mejor?. Si en lugar de esto se usaran c hilos en 100/c máquinas distribuidas (siendo c es el número de núcleos de dichas máquinas), se mejoraría?. Explique su respuesta.
+
+
+	La ley de Amdahls se aplicaría practicamente igual, debido a que, independientemente si se están corriendo 100 hilos en una CPU o 100 hilos cada uno en 100 máquinas, el programa se ejecutará 		paralelamente, lo que no representa una mejora en el desempeño teórico.
+
+	Al igual que usar 100 hilos en 100 máquinas cada uno, al utilizar c hilos en 100/c máquinas, el programa se ejecuta paralelamente, lo que no mejora el desempeño teórico.
+
+
+
 
 
 
