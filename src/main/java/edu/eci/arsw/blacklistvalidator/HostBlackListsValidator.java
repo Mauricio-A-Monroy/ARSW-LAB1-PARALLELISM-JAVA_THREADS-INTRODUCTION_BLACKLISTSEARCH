@@ -59,26 +59,22 @@ public class HostBlackListsValidator {
             threads.get(n-1).start();
         }
 
-        // Waiting for all the other threads until they finish or the ip address is on a black list
+        // Waiting for all the other threads until they finish or the ip address is on a black list and adds all the servers where the ip was found
         int ocurrencesCount = 0;
         int checkedListsCount = 0;
+        ArrayList<Integer> blackListOcurrences = new ArrayList<>();
         for(int i = 0; i < n && ocurrencesCount < BLACK_LIST_ALARM_COUNT; i++){
             try{
                 BlackListThread thread = threads.get(i);
 
                 thread.join();
                 ocurrencesCount += thread.getOcurrencesCount();
+                blackListOcurrences.addAll(thread.getBlackList());
                 checkedListsCount += thread.getCheckedListsCount();
             }
             catch(InterruptedException e){
                  System.out.println("An exception has been caught " + e);
             }
-        }
-
-        // Adding all the servers where the ip was found
-        ArrayList<Integer> blackListOcurrences = new ArrayList<>();
-        for(int i = 0; i < n; i++){
-            blackListOcurrences.addAll(threads.get(i).getBlackList());
         }
 
         // Reporting or not the ip address
