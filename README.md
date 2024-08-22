@@ -4,6 +4,9 @@
 ## Ejercicio Introducción al paralelismo - Hilos - Caso BlackListSearch
 
 
+### Mauricio Monroy, Samuel Rojas
+
+
 ### Dependencias:
 ####   Lecturas:
 *  [Threads in Java](http://beginnersbook.com/2013/03/java-threads/)  (Hasta 'Ending Threads')
@@ -23,7 +26,9 @@
 	4. Cambie el incio con 'start()' por 'run()'. Cómo cambia la salida?, por qué?.
 
 
-   	Con el 'start()' los numeros no se van a imprimir en orden debido a que los hilos trabajan en paralelo, en cambio con el 'run()' los números se imprimirán en orden ya que se ejecutan secuencialmente.
+Con el método 'start()' los números no se van a imprimir en orden debido a que este lo que hace es crear un nuevo hilo y convertirlo en un
+ejecutable, permitiendo que trabajen en paralelo, mientras que el método 'run()' ejecuta el método que tiene cada uno de los hilos y por tanto,
+los números se imprimirán en orden ya que se ejecuta secuencialmente.
 
 **Parte II - Ejercicio Black List Search**
 
@@ -64,19 +69,65 @@ Para 'refactorizar' este código, y hacer que explote la capacidad multi-núcleo
 
 La estrategia de paralelismo antes implementada es ineficiente en ciertos casos, pues la búsqueda se sigue realizando aún cuando los N hilos (en su conjunto) ya hayan encontrado el número mínimo de ocurrencias requeridas para reportar al servidor como malicioso. Cómo se podría modificar la implementación para minimizar el número de consultas en estos casos?, qué elemento nuevo traería esto al problema?
 
+
+Lo que se puede modificar de la implementación realizada para minimizar el número de consultas es la pregunta constante a cada uno de los hilos 
+por la cantidad de occurrencias que han encontrado de la dirección IP dada, para que en caso de que se cumpla con el
+límite los demás hilos finalicen con su ciclo y se resuelva el problema de una forma más eficiente.
+
+
+El nuevo elemento que se puede traer a este problema puede ser el método wait() y notifyAll(), el método wait() se encarga de detener la ejecución de un
+hilo durante esta pausa se le puede consultar la cantidad de ocurrencias que ha encontrado hasta el momento, en caso de que se cumpla con el límite
+de apariciones se detiene la ejecución y se da un reporte de la dirección IP, de lo contrario, se continúa con la ejecución de todos los hilos al
+despertarlos nuevamente para que continúen con su ejecución con ayuda del método notifyAll() y determinar de esta forma si la dirección dada se puede
+catalogar como peligrosa o no.
+
 **Parte III - Evaluación de Desempeño**
 
 A partir de lo anterior, implemente la siguiente secuencia de experimentos para realizar las validación de direcciones IP dispersas (por ejemplo 202.24.34.55), tomando los tiempos de ejecución de los mismos (asegúrese de hacerlos en la misma máquina):
 
 1. Un solo hilo.
+
+![](img/Thread1Threads.png)
+
+![](img/Thread1Monitor.png)
+
 2. Tantos hilos como núcleos de procesamiento (haga que el programa determine esto haciendo uso del [API Runtime](https://docs.oracle.com/javase/7/docs/api/java/lang/Runtime.html)).
+
+![](img/ThreadProcessorThreads.png)
+
+![](img/ThreadProcessorMonitor.png)
+
 3. Tantos hilos como el doble de núcleos de procesamiento.
-4. 50 hilos.
-5. 100 hilos.
+
+![](img/Thread2ProcessorThreads.png)
+
+![](img/Thread2ProcessorMonitor.png)
+
+4. 5 hilos.
+
+![](img/Thread5Threads.png)
+
+![](img/Thread5Monitor.png)
+
+5. 10 hilos.
+
+![](img/Thread10Threads.png)
+
+![](img/Thread10Monitor.png)
 
 Al iniciar el programa ejecute el monitor jVisualVM, y a medida que corran las pruebas, revise y anote el consumo de CPU y de memoria en cada caso. ![](img/jvisualvm.png)
 
 Con lo anterior, y con los tiempos de ejecución dados, haga una gráfica de tiempo de solución vs. número de hilos. Analice y plantee hipótesis con su compañero para las siguientes preguntas (puede tener en cuenta lo reportado por jVisualVM):
+
+| No. Hilos | Tiempo(ms) |
+|-----------|------------|
+| 1         | 109062     |
+| 5         | 13003      |
+| 10        | 6992       |
+| 12        | 2992       |
+| 24        | 994        |
+
+![](img/ThreadsVsTime.png)
 
 **Parte IV - Ejercicio Black List Search**
 
@@ -85,22 +136,35 @@ Con lo anterior, y con los tiempos de ejecución dados, haga una gráfica de tie
 	![](img/ahmdahls.png), donde _S(n)_ es el mejoramiento teórico del desempeño, _P_ la fracción paralelizable del algoritmo, y _n_ el número de hilos, a mayor _n_, mayor debería ser dicha mejora. Por qué el mejor desempeño no se logra con los 500 hilos?, cómo se compara este desempeño cuando se usan 200?.
 
 
-	El mejor desempeño siempre se logrará con una mayor cantidad de hilos, ya ley de Amdahls tiene una funcion racional, por lo que posee una asíntota horizontal, así, entre mayor sea el número de 	hilos, el desempeño se acercará más a el valor de dicha asíntota.
+El mejor desempeño siempre se logrará con una mayor cantidad de hilos, ya ley de Amdahls es una función racional, por tanto, esta posee una 
+asíntota horizontal, así, entre mayor sea el número de hilos, el desempeño se acercará más al valor de dicha asíntota.
 
 
-	El desempeño de 500 hilos será mayor que el de 200 hilos.
+Para determinar el valor de P se tuvo en cuenta la cantidad de líneas de código que se ejecutan de forma paralela de acuerdo con nuestra
+implementación, de las líneas 62 líneas en ejecución 5 de ellas se realizan paralelamente, lo que nos indica que el valor de P es de
+8.065%.
+
+![](img/Graph.png)
+
+El desempeño de 500 hilos será mayor que el de 200 hilos, a pesar de que la diferencia de rendeimiento no sea tan grande en nuestro caso,
+en un problema con una fracción paralelizable mayor la diferencia será más notable.
 
 3. Cómo se comporta la solución usando tantos hilos de procesamiento como núcleos comparado con el resultado de usar el doble de éste?.
 
 
-	Cuando se tiene el doble de hilos se comporta mejor que cuando se tiene tantos hilos de procesamiento como nucleos.
+Cuando se tiene el doble de hilos el rendimiento es mejor que cuando se tiene tantos hilos de procesamiento como núcleos, el rendimiento aparentemente
+se reduce a la mitad, pero como se muestra anteriormente, se llega a un punto en el que el este tiende a converger a un valor.
 
-4. De acuerdo con lo anterior, si para este problema en lugar de 100 hilos en una sola CPU se pudiera usar 1 hilo en cada una de 100 máquinas hipotéticas, la ley de Amdahls se aplicaría mejor?. Si en lugar de esto se usaran c hilos en 100/c máquinas distribuidas (siendo c es el número de núcleos de dichas máquinas), se mejoraría?. Explique su respuesta.
+4. De acuerdo con lo anterior, si para este problema en lugar de 100 hilos en una sola CPU se pudiera usar 1 hilo en cada una de 100 máquinas 
+hipotéticas, la ley de Amdahls se aplicaría mejor?. Si en lugar de esto se usaran c hilos en 100/c máquinas distribuidas (siendo c es el número 
+de núcleos de dichas máquinas), se mejoraría?. Explique su respuesta.
 
 
-	La ley de Amdahls se aplicaría practicamente igual, debido a que, independientemente si se están corriendo 100 hilos en una CPU o 100 hilos cada uno en 100 máquinas, el programa se ejecutará 		paralelamente, lo que no representa una mejora en el desempeño teórico.
+La ley de Amdahls se aplicaría prácticamente igual, debido a que, independientemente de si se están corriendo 100 hilos en una CPU o 100 hilos cada uno
+en 100 máquinas, el programa se ejecutará paralelamente, lo que no representa una mejora en el desempeño teórico.
 
-	Al igual que usar 100 hilos en 100 máquinas cada uno, al utilizar c hilos en 100/c máquinas, el programa se ejecuta paralelamente, lo que no mejora el desempeño teórico.
+Al igual que usar 100 hilos en 100 máquinas cada uno, al utilizar c hilos en 100/c máquinas, el programa se ejecuta paralelamente, lo que no 
+mejora el desempeño teórico y lo mantiene igual.
 
 
 

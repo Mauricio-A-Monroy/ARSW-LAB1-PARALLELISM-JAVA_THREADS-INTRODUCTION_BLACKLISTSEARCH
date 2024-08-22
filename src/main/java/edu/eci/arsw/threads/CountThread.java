@@ -31,7 +31,7 @@ public class CountThread extends Thread{
             System.out.println(i);
         }
     }
-/**
+    /**
     @Override
     public void run() {
         for (int i = getA(); i <= getB(); i++){

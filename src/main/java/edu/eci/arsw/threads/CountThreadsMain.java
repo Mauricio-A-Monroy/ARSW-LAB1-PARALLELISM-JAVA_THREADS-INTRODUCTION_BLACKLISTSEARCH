@@ -11,10 +11,6 @@ package edu.eci.arsw.threads;
 public class CountThreadsMain {
     
     public static void main(String a[]){
-        /**
-        Thread countThread1 = new Thread(new CountThread(0,99));
-        Thread countThread2 = new Thread(new CountThread(99,199));
-        Thread countThread3 = new Thread(new CountThread(200,299));**/
 
         Thread countThread1 = new CountThread(0,99);
         Thread countThread2 = new CountThread(99,199);
